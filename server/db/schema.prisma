@@ -1,0 +1,73 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Watchlist {
+  id        String     @id @default(cuid())
+  userId    String     @default("default_user")
+  name      String
+  isDefault Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  stocks    WatchlistStock[]
+  snapshots Snapshot[]
+
+  @@index([userId])
+}
+
+model WatchlistStock {
+  id          String    @id @default(cuid())
+  watchlistId String
+  symbol      String
+  order       Int       @default(0)
+  watchlist   Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+
+  @@unique([watchlistId, symbol])
+  @@index([watchlistId])
+  @@index([symbol])
+}
+
+model Snapshot {
+  id          String         @id @default(cuid())
+  watchlistId String
+  userId      String         @default("default_user")
+  timestamp   DateTime       @default(now())
+  note        String?
+  watchlist   Watchlist      @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+  items       SnapshotItem[]
+
+  @@index([watchlistId, timestamp])
+  @@index([userId])
+}
+
+model SnapshotItem {
+  id           String   @id @default(cuid())
+  snapshotId   String
+  symbol       String
+  price        Float
+  changePct    Float
+  volume       BigInt
+  avgVolume    BigInt
+  sectorValue  Float?
+  marketValue  Float?
+  snapshot     Snapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  @@index([snapshotId])
+  @@index([symbol])
+}
+
+model UserSettings {
+  userId             String   @id @default("default_user")
+  priceThreshold     Float    @default(2.0)
+  volumeThreshold    Float    @default(1.5)
+  newsSensitivity    String   @default("medium") // low, medium, high
+  attentionPreference String  @default("balanced") // conservative, balanced, sensitive
+  dataMode           String   @default("demo")     // demo, live
+  autoSnapshot       Boolean  @default(true)
+  updatedAt          DateTime @updatedAt
+}

@@ -1,0 +1,6 @@
+{
+  "name": "MarketPulse – Smart Market Watchlist",
+  "description": "Smart market watchlist that highlights what meaningfully changed since your last visit with explainable scoring.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
